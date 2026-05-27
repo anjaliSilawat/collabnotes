@@ -11,6 +11,7 @@ const BACKEND = import.meta.env.VITE_BACKEND_URL
 export default function History() {
   const { token } = useAuth()
   const navigate = useNavigate()
+
   const [notes, setNotes] = useState([])
   const [loading, setLoading] = useState(true)
 
@@ -20,17 +21,27 @@ export default function History() {
 
   const toggleTheme = () => {
     const newTheme = theme === 'dark' ? 'light' : 'dark'
-    document.documentElement.setAttribute('data-theme', newTheme)
+
+    document.documentElement.setAttribute(
+      'data-theme',
+      newTheme
+    )
+
     setTheme(newTheme)
   }
 
   useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme)
+    document.documentElement.setAttribute(
+      'data-theme',
+      theme
+    )
   }, [theme])
 
   useEffect(() => {
+
     const fetchNotes = async () => {
       try {
+
         const res = await axios.get(
           `${BACKEND}/api/notes/my-notes`,
           {
@@ -50,17 +61,54 @@ export default function History() {
     }
 
     fetchNotes()
+
   }, [])
+
+  // DELETE NOTE
+  const deleteNote = async (id) => {
+
+    const confirmDelete = window.confirm(
+      'Are you sure you want to delete this note?'
+    )
+
+    if (!confirmDelete) return
+
+    try {
+
+      await axios.delete(
+        `${BACKEND}/api/notes/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      )
+
+      setNotes(prev =>
+        prev.filter(note => note._id !== id)
+      )
+
+    } catch (err) {
+      alert('Failed to delete note')
+    }
+  }
 
   return (
     <div className="history">
+
       <nav className="history__nav">
+
         <div className="history__logo">
           <span className="logo-icon">✏️</span>
           <h2>CollabNotes</h2>
         </div>
 
-        <div style={{ display: 'flex', gap: '0.75rem' }}>
+        <div
+          style={{
+            display: 'flex',
+            gap: '0.75rem'
+          }}
+        >
 
           <button
             className="history__back-btn"
@@ -84,10 +132,14 @@ export default function History() {
       </nav>
 
       <div className="history__content">
+
         <div className="history__header">
           <h3>My Saved Notes 📝</h3>
+
           <p>
-            {notes.length} note{notes.length !== 1 ? 's' : ''} saved
+            {notes.length} note
+            {notes.length !== 1 ? 's' : ''}
+            {' '}saved
           </p>
         </div>
 
@@ -100,7 +152,10 @@ export default function History() {
 
         {!loading && notes.length === 0 && (
           <div className="history__empty">
-            <span className="empty-icon">📭</span>
+
+            <span className="empty-icon">
+              📭
+            </span>
 
             <h4>No saved notes yet</h4>
 
@@ -108,19 +163,26 @@ export default function History() {
               Create a room and save your first note!
             </p>
 
-            <button onClick={() => navigate('/dashboard')}>
+            <button
+              onClick={() => navigate('/dashboard')}
+            >
               Create Room
             </button>
           </div>
         )}
 
         <div className="history__list">
+
           {notes.map(note => (
+
             <div
               key={note._id}
               className="history__note-card"
-              onClick={() => navigate(`/room/${note.roomCode}`)}
+              onClick={() =>
+                navigate(`/room/${note.roomCode}`)
+              }
             >
+
               <div className="history__note-info">
 
                 <div className="history__note-title">
@@ -128,11 +190,14 @@ export default function History() {
                 </div>
 
                 <div className="history__note-meta">
+
                   <span className="room-badge">
                     #{note.roomCode}
                   </span>
 
-                  {new Date(note.updatedAt).toLocaleDateString(
+                  {new Date(
+                    note.updatedAt
+                  ).toLocaleDateString(
                     'en-IN',
                     {
                       day: 'numeric',
@@ -147,7 +212,35 @@ export default function History() {
                 </div>
               </div>
 
-              <div className="note-arrow">→</div>
+              {/* RIGHT SIDE */}
+              <div
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: '12px'
+                }}
+              >
+
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    deleteNote(note._id)
+                  }}
+                  style={{
+                    border: 'none',
+                    background: 'transparent',
+                    cursor: 'pointer',
+                    fontSize: '20px'
+                  }}
+                >
+                  🗑️
+                </button>
+
+                <div className="note-arrow">
+                  →
+                </div>
+              </div>
             </div>
           ))}
         </div>
