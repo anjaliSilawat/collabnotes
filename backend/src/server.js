@@ -1,3 +1,4 @@
+const uploadRoutes = require('./routes/upload');
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -35,6 +36,7 @@ mongoose.connect(process.env.MONGO_URI)
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/notes', noteRoutes);
+app.use('/api/upload', uploadRoutes);
 
 // Socket.io
 const io = new Server(httpServer, {

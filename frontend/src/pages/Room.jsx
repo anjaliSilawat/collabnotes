@@ -10,16 +10,21 @@ import '../styles/Room.scss'
 const BACKEND = import.meta.env.VITE_BACKEND_URL
 
 export default function Room() {
+
   const { roomCode } = useParams()
   const { token } = useAuth()
   const navigate = useNavigate()
 
   const [note, setNote] = useState('')
   const [title, setTitle] = useState('Untitled Note')
+
   const [users, setUsers] = useState(1)
+
   const [copied, setCopied] = useState(false)
   const [saved, setSaved] = useState(false)
   const [saving, setSaving] = useState(false)
+
+  const [uploading, setUploading] = useState(false)
 
   const socketRef = useRef(null)
 
@@ -29,17 +34,28 @@ export default function Room() {
 
   const toggleTheme = () => {
     const newTheme = theme === 'dark' ? 'light' : 'dark'
-    document.documentElement.setAttribute('data-theme', newTheme)
+
+    document.documentElement.setAttribute(
+      'data-theme',
+      newTheme
+    )
+
     setTheme(newTheme)
   }
 
   useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme)
+    document.documentElement.setAttribute(
+      'data-theme',
+      theme
+    )
   }, [theme])
 
   useEffect(() => {
+
     const loadNote = async () => {
+
       try {
+
         const res = await axios.get(
           `${BACKEND}/api/notes/${roomCode}`,
           {
@@ -50,11 +66,13 @@ export default function Room() {
         )
 
         if (res.data) {
+
           setNote(res.data.content || '')
           setTitle(res.data.title || 'Untitled Note')
         }
 
       } catch (err) {
+
         console.log('No existing note')
       }
     }
@@ -63,35 +81,50 @@ export default function Room() {
 
     socketRef.current = io(BACKEND)
 
-    socketRef.current.emit('join-room', roomCode)
+    socketRef.current.emit(
+      'join-room',
+      roomCode
+    )
 
-    socketRef.current.on('note-change', (content) => {
-      setNote(content)
-    })
+    socketRef.current.on(
+      'note-change',
+      (content) => {
+        setNote(content)
+      }
+    )
 
-    socketRef.current.on('user-joined', () => {
-      setUsers(prev => prev + 1)
-    })
+    socketRef.current.on(
+      'user-joined',
+      () => {
+        setUsers(prev => prev + 1)
+      }
+    )
 
     return () => socketRef.current.disconnect()
 
   }, [roomCode])
 
   const handleChange = (e) => {
+
     const content = e.target.value
 
     setNote(content)
 
     socketRef.current.emit(
       'note-change',
-      { roomCode, content }
+      {
+        roomCode,
+        content
+      }
     )
   }
 
   const saveNote = async () => {
+
     setSaving(true)
 
     try {
+
       await axios.post(
         `${BACKEND}/api/notes/save`,
         {
@@ -108,9 +141,13 @@ export default function Room() {
 
       setSaved(true)
 
-      setTimeout(() => setSaved(false), 2000)
+      setTimeout(
+        () => setSaved(false),
+        2000
+      )
 
     } catch (err) {
+
       alert('Save failed — try again')
     }
 
@@ -118,15 +155,82 @@ export default function Room() {
   }
 
   const copyCode = () => {
+
     navigator.clipboard.writeText(roomCode)
 
     setCopied(true)
 
-    setTimeout(() => setCopied(false), 2000)
+    setTimeout(
+      () => setCopied(false),
+      2000
+    )
+  }
+
+  const handleFileUpload = async (e) => {
+
+    const file = e.target.files[0]
+
+    if (!file) return
+
+    setUploading(true)
+
+    try {
+
+      const formData = new FormData()
+
+      formData.append('file', file)
+
+      const res = await axios.post(
+        `${BACKEND}/api/upload`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data'
+          }
+        }
+      )
+
+      const fileUrl = res.data.url
+      const fileName = res.data.originalName
+
+      let contentToAdd = ''
+
+      if (file.type.startsWith('image/')) {
+
+        contentToAdd =
+`\n\n🖼️ ${fileName}\n${fileUrl}\n`
+
+      } else {
+
+        contentToAdd =
+`\n\n📎 ${fileName}\n${fileUrl}\n`
+      }
+
+      const updatedNote = note + contentToAdd
+
+      setNote(updatedNote)
+
+      socketRef.current.emit(
+        'note-change',
+        {
+          roomCode,
+          content: updatedNote
+        }
+      )
+
+    } catch (err) {
+
+      alert('Upload failed')
+    }
+
+    setUploading(false)
   }
 
   return (
+
     <div className="room">
+
       <nav className="room__nav">
 
         <div
@@ -142,7 +246,10 @@ export default function Room() {
           </div>
 
           <div className="room__room-badge">
-            <span className="room-label">Room:</span>
+
+            <span className="room-label">
+              Room:
+            </span>
 
             <span className="room-code">
               {roomCode}
@@ -171,11 +278,27 @@ export default function Room() {
             <span>{users} editing</span>
           </div>
 
+          <label
+            style={{
+              cursor: 'pointer',
+              fontSize: '20px'
+            }}
+          >
+            📎
+
+            <input
+              type="file"
+              hidden
+              onChange={handleFileUpload}
+            />
+          </label>
+
           <button
             className="room__save-btn"
             onClick={saveNote}
             disabled={saving}
           >
+
             {saving
               ? '⏳ Saving...'
               : saved
@@ -194,12 +317,21 @@ export default function Room() {
             className="room__theme-btn"
             onClick={toggleTheme}
           >
-            {theme === 'dark' ? '☀️' : '🌙'}
+            {theme === 'dark'
+              ? '☀️'
+              : '🌙'}
           </button>
         </div>
       </nav>
 
       <div className="room__editor">
+
+        {uploading && (
+          <p style={{ padding: '10px' }}>
+            Uploading file...
+          </p>
+        )}
+
         <textarea
           className="room__textarea"
           value={note}
