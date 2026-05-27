@@ -19,11 +19,9 @@ export default function Room() {
   const [title, setTitle] = useState('Untitled Note')
 
   const [users, setUsers] = useState(1)
-
   const [copied, setCopied] = useState(false)
   const [saved, setSaved] = useState(false)
   const [saving, setSaving] = useState(false)
-
   const [uploading, setUploading] = useState(false)
 
   const socketRef = useRef(null)
@@ -48,9 +46,7 @@ export default function Room() {
       try {
         const res = await axios.get(
           `${BACKEND}/api/notes/${roomCode}`,
-          {
-            headers: { Authorization: `Bearer ${token}` }
-          }
+          { headers: { Authorization: `Bearer ${token}` } }
         )
 
         if (res.data) {
@@ -151,7 +147,6 @@ export default function Room() {
       }
 
       const updatedNote = note + contentToAdd
-
       setNote(updatedNote)
 
       socketRef.current.emit('note-change', {
@@ -166,7 +161,7 @@ export default function Room() {
     setUploading(false)
   }
 
-  // ⭐ ONLY FIX (RENDER LAYER)
+  // ⭐ FIXED RENDER ONLY
   const renderNote = (text) => {
     return text.split('\n').map((line, i) => {
 
@@ -179,19 +174,30 @@ export default function Room() {
             key={i}
             src={imgMatch[1]}
             alt="uploaded"
-            style={{ maxWidth: '300px', borderRadius: '10px', margin: '10px 0' }}
+            style={{
+              maxWidth: '300px',
+              borderRadius: '10px',
+              margin: '10px 0'
+            }}
           />
         )
       }
 
       if (fileMatch) {
+        const url = fileMatch[1]
+
         return (
           <a
             key={i}
-            href={fileMatch[1]}
+            href={url}
             target="_blank"
             rel="noreferrer"
-            style={{ display: 'block', color: '#4f46e5', margin: '5px 0' }}
+            style={{
+              display: 'block',
+              color: '#4f46e5',
+              margin: '6px 0',
+              textDecoration: 'underline'
+            }}
           >
             📎 Open File
           </a>
@@ -270,9 +276,10 @@ export default function Room() {
 
       <div className="room__editor">
 
-        {uploading && <p style={{ padding: '10px' }}>Uploading file...</p>}
+        {uploading && (
+          <p style={{ padding: '10px' }}>Uploading file...</p>
+        )}
 
-        {/* ⭐ ONLY CHANGE HERE */}
         <div className="room__textarea">
           {renderNote(note)}
         </div>
