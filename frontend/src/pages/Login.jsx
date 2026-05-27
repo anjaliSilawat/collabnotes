@@ -1,4 +1,6 @@
-import { useState } from 'react'
+// Login.jsx
+
+import { useState, useEffect } from 'react'
 import axios from 'axios'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
@@ -13,17 +15,32 @@ export default function Login() {
   const { login } = useAuth()
   const navigate = useNavigate()
 
+  const [theme, setTheme] = useState(
+    document.documentElement.getAttribute('data-theme') || 'light'
+  )
+
   const toggleTheme = () => {
-    const current = document.documentElement.getAttribute('data-theme')
-    document.documentElement.setAttribute('data-theme', current === 'dark' ? 'light' : 'dark')
+    const newTheme = theme === 'dark' ? 'light' : 'dark'
+    document.documentElement.setAttribute('data-theme', newTheme)
+    setTheme(newTheme)
   }
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme)
+  }, [theme])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+
     try {
-      const res = await axios.post(`${BACKEND}/api/auth/login`, { email, password })
+      const res = await axios.post(
+        `${BACKEND}/api/auth/login`,
+        { email, password }
+      )
+
       login(res.data.user, res.data.token)
       navigate('/dashboard')
+
     } catch (err) {
       setError('Invalid email or password')
     }
@@ -31,7 +48,13 @@ export default function Login() {
 
   return (
     <div className="login-page">
-      <button className="login-page__theme-toggle" onClick={toggleTheme}>🌙</button>
+
+      <button
+        className="login-page__theme-toggle"
+        onClick={toggleTheme}
+      >
+        {theme === 'dark' ? '☀️' : '🌙'}
+      </button>
 
       <div className="login-page__card">
         <div className="login-page__logo">
@@ -40,11 +63,20 @@ export default function Login() {
           <p>Real-time collaborative notes</p>
         </div>
 
-        {error && <div className="login-page__error">{error}</div>}
+        {error && (
+          <div className="login-page__error">
+            {error}
+          </div>
+        )}
 
-        <form className="login-page__form" onSubmit={handleSubmit}>
+        <form
+          className="login-page__form"
+          onSubmit={handleSubmit}
+        >
+
           <div className="login-page__input-group">
             <label>Email</label>
+
             <input
               type="email"
               placeholder="you@example.com"
@@ -53,8 +85,10 @@ export default function Login() {
               required
             />
           </div>
+
           <div className="login-page__input-group">
             <label>Password</label>
+
             <input
               type="password"
               placeholder="••••••••"
@@ -63,7 +97,11 @@ export default function Login() {
               required
             />
           </div>
-          <button type="submit" className="login-page__btn">
+
+          <button
+            type="submit"
+            className="login-page__btn"
+          >
             Sign In →
           </button>
         </form>
