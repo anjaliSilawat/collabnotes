@@ -4,6 +4,8 @@ import { io } from 'socket.io-client'
 import axios from 'axios'
 import { useAuth } from '../context/AuthContext'
 
+const BACKEND = import.meta.env.VITE_BACKEND_URL
+
 export default function Room() {
   const { roomCode } = useParams()
   const { user, token } = useAuth()
@@ -17,11 +19,10 @@ export default function Room() {
   const socketRef = useRef(null)
 
   useEffect(() => {
-    // Load existing note if saved before
     const loadNote = async () => {
       try {
         const res = await axios.get(
-          `http://localhost:8000/api/notes/${roomCode}`,
+          `${BACKEND}/api/notes/${roomCode}`,
           { headers: { Authorization: `Bearer ${token}` } }
         )
         if (res.data) {
@@ -34,8 +35,7 @@ export default function Room() {
     }
     loadNote()
 
-    // Connect socket
-    socketRef.current = io('http://localhost:8000')
+    socketRef.current = io(BACKEND)
     socketRef.current.emit('join-room', roomCode)
 
     socketRef.current.on('note-change', (content) => {
@@ -57,12 +57,11 @@ export default function Room() {
     socketRef.current.emit('note-change', { roomCode, content })
   }
 
-  // Save to MongoDB
   const saveNote = async () => {
     setSaving(true)
     try {
       await axios.post(
-        'http://localhost:8000/api/notes/save',
+        `${BACKEND}/api/notes/save`,
         { roomCode, content: note, title },
         { headers: { Authorization: `Bearer ${token}` } }
       )
@@ -83,12 +82,9 @@ export default function Room() {
   return (
     <div style={{ height: '100vh', display: 'flex',
       flexDirection: 'column', background: '#f0f2f5' }}>
-
-      {/* Navbar */}
       <div style={{ background: 'white', padding: '0.875rem 1.5rem',
         display: 'flex', justifyContent: 'space-between',
         alignItems: 'center', boxShadow: '0 1px 4px rgba(0,0,0,0.1)' }}>
-
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <span style={{ fontWeight: '600', color: '#185FA5', fontSize: '18px' }}>
             CollabNotes ✏️
@@ -105,8 +101,6 @@ export default function Room() {
             </button>
           </div>
         </div>
-
-        {/* Title input */}
         <input
           value={title}
           onChange={e => setTitle(e.target.value)}
@@ -115,25 +109,21 @@ export default function Room() {
             textAlign: 'center', width: '200px', color: '#333' }}
           placeholder="Note title..."
         />
-
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px',
             background: '#EAF3DE', padding: '4px 12px', borderRadius: '20px' }}>
             <span style={{ width: '8px', height: '8px', borderRadius: '50%',
-              background: '#1D9E75', display: 'inline-block',
-              animation: 'pulse 1.5s infinite' }}></span>
+              background: '#1D9E75', display: 'inline-block' }}></span>
             <span style={{ fontSize: '13px', color: '#27500A', fontWeight: '500' }}>
               {users} editing
             </span>
           </div>
-
           <button onClick={saveNote} disabled={saving}
             style={{ padding: '0.5rem 1rem', background: '#185FA5',
               color: 'white', border: 'none', borderRadius: '8px',
               cursor: 'pointer', fontSize: '13px', opacity: saving ? 0.7 : 1 }}>
             {saving ? '⏳ Saving...' : saved ? '✅ Saved!' : '💾 Save'}
           </button>
-
           <button onClick={() => navigate('/dashboard')}
             style={{ padding: '0.5rem 1rem', background: '#ff4d4f',
               color: 'white', border: 'none', borderRadius: '8px',
@@ -142,8 +132,6 @@ export default function Room() {
           </button>
         </div>
       </div>
-
-      {/* Editor */}
       <div style={{ flex: 1, padding: '1.5rem' }}>
         <textarea
           value={note}

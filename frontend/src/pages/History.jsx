@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import { useAuth } from '../context/AuthContext'
 
+const BACKEND = import.meta.env.VITE_BACKEND_URL
+
 export default function History() {
   const { token } = useAuth()
   const navigate = useNavigate()
@@ -12,7 +14,7 @@ export default function History() {
   useEffect(() => {
     const fetchNotes = async () => {
       try {
-        const res = await axios.get('http://localhost:8000/api/notes/my-notes', {
+        const res = await axios.get(`${BACKEND}/api/notes/my-notes`, {
           headers: { Authorization: `Bearer ${token}` }
         })
         setNotes(res.data)
@@ -26,7 +28,6 @@ export default function History() {
 
   return (
     <div style={{ minHeight: '100vh', background: '#f0f2f5' }}>
-      {/* Navbar */}
       <div style={{ background: 'white', padding: '1rem 2rem',
         display: 'flex', justifyContent: 'space-between',
         alignItems: 'center', boxShadow: '0 1px 4px rgba(0,0,0,0.1)' }}>
@@ -38,23 +39,19 @@ export default function History() {
           ← Back to Dashboard
         </button>
       </div>
-
-      {/* Content */}
       <div style={{ maxWidth: '800px', margin: '2rem auto', padding: '0 1rem' }}>
         <h3 style={{ marginBottom: '1.5rem', color: '#333' }}>
           My Saved Notes 📝
         </h3>
-
         {loading && (
           <p style={{ textAlign: 'center', color: '#888' }}>Loading...</p>
         )}
-
         {!loading && notes.length === 0 && (
           <div style={{ textAlign: 'center', padding: '3rem',
             background: 'white', borderRadius: '12px',
             boxShadow: '0 2px 12px rgba(0,0,0,0.08)' }}>
             <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📭</div>
-            <p style={{ color: '#888' }}>No saved notes yet — create a room and save!</p>
+            <p style={{ color: '#888' }}>No saved notes yet!</p>
             <button onClick={() => navigate('/dashboard')}
               style={{ marginTop: '1rem', padding: '0.75rem 1.5rem',
                 background: '#185FA5', color: 'white', border: 'none',
@@ -63,7 +60,6 @@ export default function History() {
             </button>
           </div>
         )}
-
         {notes.map(note => (
           <div key={note._id}
             style={{ background: 'white', borderRadius: '12px',

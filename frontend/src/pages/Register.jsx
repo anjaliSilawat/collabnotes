@@ -2,6 +2,8 @@ import { useState } from 'react'
 import axios from 'axios'
 import { useNavigate, Link } from 'react-router-dom'
 
+const BACKEND = import.meta.env.VITE_BACKEND_URL
+
 export default function Register() {
   const [form, setForm] = useState({ username: '', email: '', password: '' })
   const [error, setError] = useState('')
@@ -11,7 +13,7 @@ export default function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
-      await axios.post('http://localhost:8000/api/auth/register', form)
+      await axios.post(`${BACKEND}/api/auth/register`, form)
       setSuccess('Registered! Redirecting...')
       setTimeout(() => navigate('/login'), 1500)
     } catch (err) {
@@ -20,10 +22,10 @@ export default function Register() {
   }
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', 
+    <div style={{ display: 'flex', justifyContent: 'center',
       alignItems: 'center', height: '100vh', background: '#f0f2f5' }}>
-      <div style={{ background: 'white', padding: '2rem', 
-        borderRadius: '12px', width: '360px', 
+      <div style={{ background: 'white', padding: '2rem',
+        borderRadius: '12px', width: '360px',
         boxShadow: '0 2px 12px rgba(0,0,0,0.1)' }}>
         <h2 style={{ marginBottom: '1.5rem', textAlign: 'center' }}>
           Create Account
@@ -35,8 +37,8 @@ export default function Register() {
             placeholder="Username"
             value={form.username}
             onChange={e => setForm({...form, username: e.target.value})}
-            style={{ width: '100%', padding: '0.75rem', 
-              marginBottom: '1rem', borderRadius: '8px', 
+            style={{ width: '100%', padding: '0.75rem',
+              marginBottom: '1rem', borderRadius: '8px',
               border: '1px solid #ddd', fontSize: '14px' }}
             required
           />
@@ -45,8 +47,8 @@ export default function Register() {
             placeholder="Email"
             value={form.email}
             onChange={e => setForm({...form, email: e.target.value})}
-            style={{ width: '100%', padding: '0.75rem', 
-              marginBottom: '1rem', borderRadius: '8px', 
+            style={{ width: '100%', padding: '0.75rem',
+              marginBottom: '1rem', borderRadius: '8px',
               border: '1px solid #ddd', fontSize: '14px' }}
             required
           />
@@ -55,15 +57,15 @@ export default function Register() {
             placeholder="Password"
             value={form.password}
             onChange={e => setForm({...form, password: e.target.value})}
-            style={{ width: '100%', padding: '0.75rem', 
-              marginBottom: '1rem', borderRadius: '8px', 
+            style={{ width: '100%', padding: '0.75rem',
+              marginBottom: '1rem', borderRadius: '8px',
               border: '1px solid #ddd', fontSize: '14px' }}
             required
           />
           <button type="submit"
-            style={{ width: '100%', padding: '0.75rem', 
-              background: '#185FA5', color: 'white', 
-              border: 'none', borderRadius: '8px', 
+            style={{ width: '100%', padding: '0.75rem',
+              background: '#185FA5', color: 'white',
+              border: 'none', borderRadius: '8px',
               fontSize: '14px', cursor: 'pointer' }}>
             Register
           </button>

@@ -3,6 +3,8 @@ import axios from 'axios'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 
+const BACKEND = import.meta.env.VITE_BACKEND_URL
+
 export default function Login() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -13,7 +15,7 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
-      const res = await axios.post('http://localhost:8000/api/auth/login', {
+      const res = await axios.post(`${BACKEND}/api/auth/login`, {
         email, password
       })
       login(res.data.user, res.data.token)
@@ -24,9 +26,9 @@ export default function Login() {
   }
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', 
+    <div style={{ display: 'flex', justifyContent: 'center',
       alignItems: 'center', height: '100vh', background: '#f0f2f5' }}>
-      <div style={{ background: 'white', padding: '2rem', 
+      <div style={{ background: 'white', padding: '2rem',
         borderRadius: '12px', width: '360px', boxShadow: '0 2px 12px rgba(0,0,0,0.1)' }}>
         <h2 style={{ marginBottom: '1.5rem', textAlign: 'center' }}>
           CollabNotes Login
@@ -38,8 +40,8 @@ export default function Login() {
             placeholder="Email"
             value={email}
             onChange={e => setEmail(e.target.value)}
-            style={{ width: '100%', padding: '0.75rem', 
-              marginBottom: '1rem', borderRadius: '8px', 
+            style={{ width: '100%', padding: '0.75rem',
+              marginBottom: '1rem', borderRadius: '8px',
               border: '1px solid #ddd', fontSize: '14px' }}
             required
           />
@@ -48,15 +50,15 @@ export default function Login() {
             placeholder="Password"
             value={password}
             onChange={e => setPassword(e.target.value)}
-            style={{ width: '100%', padding: '0.75rem', 
-              marginBottom: '1rem', borderRadius: '8px', 
+            style={{ width: '100%', padding: '0.75rem',
+              marginBottom: '1rem', borderRadius: '8px',
               border: '1px solid #ddd', fontSize: '14px' }}
             required
           />
           <button type="submit"
-            style={{ width: '100%', padding: '0.75rem', 
-              background: '#185FA5', color: 'white', 
-              border: 'none', borderRadius: '8px', 
+            style={{ width: '100%', padding: '0.75rem',
+              background: '#185FA5', color: 'white',
+              border: 'none', borderRadius: '8px',
               fontSize: '14px', cursor: 'pointer' }}>
             Login
           </button>
