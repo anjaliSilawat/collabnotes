@@ -13,12 +13,14 @@ router.post('/', upload.single('file'), async (req, res) => {
       })
     }
 
-    // DEBUG (optional but useful on Render)
     console.log("Uploading file:", req.file.originalname)
 
     const uploadStream = cloudinary.uploader.upload_stream(
       {
-        folder: "collabnotes"
+        folder: "collabnotes",
+
+        // ⭐ IMPORTANT FIX FOR PDF + ALL FILE TYPES
+        resource_type: "auto"
       },
       (error, result) => {
         if (error) {
@@ -35,7 +37,8 @@ router.post('/', upload.single('file'), async (req, res) => {
           success: true,
           url: result.secure_url,
           originalName: req.file.originalname,
-          public_id: result.public_id
+          public_id: result.public_id,
+          resource_type: result.resource_type
         })
       }
     )
