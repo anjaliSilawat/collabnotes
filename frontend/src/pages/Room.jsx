@@ -32,6 +32,7 @@ export default function Room() {
     document.documentElement.setAttribute('data-theme', theme)
   }, [theme])
 
+  // ---------------- SOCKET + LOAD NOTE ----------------
   useEffect(() => {
 
     const loadNote = async () => {
@@ -71,8 +72,8 @@ export default function Room() {
 
   }, [roomCode])
 
+  // ---------------- TEXT CHANGE ----------------
   const handleChange = (e) => {
-
     const content = e.target.value
     setNote(content)
 
@@ -82,6 +83,7 @@ export default function Room() {
     })
   }
 
+  // ---------------- SAVE NOTE ----------------
   const saveNote = async () => {
 
     setSaving(true)
@@ -100,7 +102,6 @@ export default function Room() {
       )
 
       setSaved(true)
-
       setTimeout(() => setSaved(false), 2000)
 
     } catch (err) {
@@ -110,12 +111,14 @@ export default function Room() {
     setSaving(false)
   }
 
+  // ---------------- COPY ROOM CODE ----------------
   const copyCode = () => {
     navigator.clipboard.writeText(roomCode)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
 
+  // ---------------- FILE UPLOAD ----------------
   const handleFileUpload = async (e) => {
 
     const file = e.target.files[0]
@@ -142,14 +145,8 @@ export default function Room() {
       const fileUrl = res.data.url
       const fileName = res.data.originalName
 
-      let contentToAdd = ''
-
-      // 👉 IMPORTANT FIX: image URL ko mark kar rahe hain
-      if (file.type.startsWith('image/')) {
-        contentToAdd = `\n🖼️ ${fileName}\n${fileUrl}\n[IMG]${fileUrl}[/IMG]\n`
-      } else {
-        contentToAdd = `\n📎 ${fileName}\n${fileUrl}\n`
-      }
+      // 👉 SIMPLE SAFE FORMAT (NO UI BREAK)
+      const contentToAdd = `\n📎 ${fileName}\n${fileUrl}\n`
 
       const updatedNote = note + contentToAdd
 
@@ -161,40 +158,14 @@ export default function Room() {
       })
 
     } catch (err) {
+      console.log(err)
       alert('Upload failed')
     }
 
     setUploading(false)
   }
 
-  // ⭐ FIX: render text + images properly
-  const renderNote = (text) => {
-
-    return text.split('\n').map((line, i) => {
-
-      // image detection
-      const imgMatch = line.match(/\[IMG\](.*?)\[\/IMG\]/)
-
-      if (imgMatch) {
-        return (
-          <img
-            key={i}
-            src={imgMatch[1]}
-            alt="uploaded"
-            style={{
-              maxWidth: '300px',
-              display: 'block',
-              margin: '10px 0',
-              borderRadius: '10px'
-            }}
-          />
-        )
-      }
-
-      return <p key={i}>{line}</p>
-    })
-  }
-
+  // ---------------- UI ----------------
   return (
 
     <div className="room">
@@ -248,14 +219,21 @@ export default function Room() {
 
       </nav>
 
+      {/* ---------------- EDITOR (RESTORED ORIGINAL UI) ---------------- */}
       <div className="room__editor">
 
-        {uploading && <p>Uploading...</p>}
+        {uploading && (
+          <p style={{ padding: '10px' }}>
+            Uploading...
+          </p>
+        )}
 
-        {/* ⭐ FIXED VIEW MODE */}
-        <div className="room__textarea">
-          {renderNote(note)}
-        </div>
+        <textarea
+          className="room__textarea"
+          value={note}
+          onChange={handleChange}
+          placeholder={`Start typing...\n\nShare code "${roomCode}" to collaborate! 🚀`}
+        />
 
       </div>
 
