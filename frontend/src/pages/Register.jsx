@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import axios from 'axios'
 import { useNavigate, Link } from 'react-router-dom'
+import '../styles/Register.scss'
 
 const BACKEND = import.meta.env.VITE_BACKEND_URL
 
@@ -14,7 +15,7 @@ export default function Register() {
     e.preventDefault()
     try {
       await axios.post(`${BACKEND}/api/auth/register`, form)
-      setSuccess('Registered! Redirecting...')
+      setSuccess('Account created! Redirecting...')
       setTimeout(() => navigate('/login'), 1500)
     } catch (err) {
       setError(err.response?.data?.message || 'Registration failed')
@@ -22,57 +23,55 @@ export default function Register() {
   }
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'center',
-      alignItems: 'center', height: '100vh', background: '#f0f2f5' }}>
-      <div style={{ background: 'white', padding: '2rem',
-        borderRadius: '12px', width: '360px',
-        boxShadow: '0 2px 12px rgba(0,0,0,0.1)' }}>
-        <h2 style={{ marginBottom: '1.5rem', textAlign: 'center' }}>
-          Create Account
-        </h2>
-        {error && <p style={{ color: 'red' }}>{error}</p>}
-        {success && <p style={{ color: 'green' }}>{success}</p>}
-        <form onSubmit={handleSubmit}>
-          <input
-            placeholder="Username"
-            value={form.username}
-            onChange={e => setForm({...form, username: e.target.value})}
-            style={{ width: '100%', padding: '0.75rem',
-              marginBottom: '1rem', borderRadius: '8px',
-              border: '1px solid #ddd', fontSize: '14px' }}
-            required
-          />
-          <input
-            type="email"
-            placeholder="Email"
-            value={form.email}
-            onChange={e => setForm({...form, email: e.target.value})}
-            style={{ width: '100%', padding: '0.75rem',
-              marginBottom: '1rem', borderRadius: '8px',
-              border: '1px solid #ddd', fontSize: '14px' }}
-            required
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            value={form.password}
-            onChange={e => setForm({...form, password: e.target.value})}
-            style={{ width: '100%', padding: '0.75rem',
-              marginBottom: '1rem', borderRadius: '8px',
-              border: '1px solid #ddd', fontSize: '14px' }}
-            required
-          />
-          <button type="submit"
-            style={{ width: '100%', padding: '0.75rem',
-              background: '#185FA5', color: 'white',
-              border: 'none', borderRadius: '8px',
-              fontSize: '14px', cursor: 'pointer' }}>
-            Register
+    <div className="register-page">
+      <div className="register-page__card">
+        <div className="register-page__logo">
+          <span className="logo-icon">✏️</span>
+          <h1>Create Account</h1>
+          <p>Join CollabNotes today</p>
+        </div>
+
+        {error && <div className="register-page__error">{error}</div>}
+        {success && <div className="register-page__success">{success}</div>}
+
+        <form className="register-page__form" onSubmit={handleSubmit}>
+          <div className="register-page__input-group">
+            <label>Username</label>
+            <input
+              placeholder="yourname"
+              value={form.username}
+              onChange={e => setForm({...form, username: e.target.value})}
+              required
+            />
+          </div>
+          <div className="register-page__input-group">
+            <label>Email</label>
+            <input
+              type="email"
+              placeholder="you@example.com"
+              value={form.email}
+              onChange={e => setForm({...form, email: e.target.value})}
+              required
+            />
+          </div>
+          <div className="register-page__input-group">
+            <label>Password</label>
+            <input
+              type="password"
+              placeholder="••••••••"
+              value={form.password}
+              onChange={e => setForm({...form, password: e.target.value})}
+              required
+            />
+          </div>
+          <button type="submit" className="register-page__btn">
+            Create Account →
           </button>
         </form>
-        <p style={{ textAlign: 'center', marginTop: '1rem', fontSize: '14px' }}>
-          Have account? <Link to="/login">Login</Link>
-        </p>
+
+        <div className="register-page__footer">
+          Have account? <Link to="/login">Sign in</Link>
+        </div>
       </div>
     </div>
   )

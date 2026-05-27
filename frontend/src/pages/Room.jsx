@@ -3,12 +3,13 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { io } from 'socket.io-client'
 import axios from 'axios'
 import { useAuth } from '../context/AuthContext'
+import '../styles/Room.scss'
 
 const BACKEND = import.meta.env.VITE_BACKEND_URL
 
 export default function Room() {
   const { roomCode } = useParams()
-  const { user, token } = useAuth()
+  const { token } = useAuth()
   const navigate = useNavigate()
   const [note, setNote] = useState('')
   const [title, setTitle] = useState('Untitled Note')
@@ -18,13 +19,16 @@ export default function Room() {
   const [saving, setSaving] = useState(false)
   const socketRef = useRef(null)
 
+  const toggleTheme = () => {
+    const current = document.documentElement.getAttribute('data-theme')
+    document.documentElement.setAttribute('data-theme', current === 'dark' ? 'light' : 'dark')
+  }
+
   useEffect(() => {
     const loadNote = async () => {
       try {
-        const res = await axios.get(
-          `${BACKEND}/api/notes/${roomCode}`,
-          { headers: { Authorization: `Bearer ${token}` } }
-        )
+        const res = await axios.get(`${BACKEND}/api/notes/${roomCode}`,
+          { headers: { Authorization: `Bearer ${token}` } })
         if (res.data) {
           setNote(res.data.content || '')
           setTitle(res.data.title || 'Untitled Note')
@@ -37,18 +41,10 @@ export default function Room() {
 
     socketRef.current = io(BACKEND)
     socketRef.current.emit('join-room', roomCode)
+    socketRef.current.on('note-change', (content) => setNote(content))
+    socketRef.current.on('user-joined', () => setUsers(prev => prev + 1))
 
-    socketRef.current.on('note-change', (content) => {
-      setNote(content)
-    })
-
-    socketRef.current.on('user-joined', () => {
-      setUsers(prev => prev + 1)
-    })
-
-    return () => {
-      socketRef.current.disconnect()
-    }
+    return () => socketRef.current.disconnect()
   }, [roomCode])
 
   const handleChange = (e) => {
@@ -60,11 +56,9 @@ export default function Room() {
   const saveNote = async () => {
     setSaving(true)
     try {
-      await axios.post(
-        `${BACKEND}/api/notes/save`,
+      await axios.post(`${BACKEND}/api/notes/save`,
         { roomCode, content: note, title },
-        { headers: { Authorization: `Bearer ${token}` } }
-      )
+        { headers: { Authorization: `Bearer ${token}` } })
       setSaved(true)
       setTimeout(() => setSaved(false), 2000)
     } catch (err) {
@@ -80,68 +74,49 @@ export default function Room() {
   }
 
   return (
-    <div style={{ height: '100vh', display: 'flex',
-      flexDirection: 'column', background: '#f0f2f5' }}>
-      <div style={{ background: 'white', padding: '0.875rem 1.5rem',
-        display: 'flex', justifyContent: 'space-between',
-        alignItems: 'center', boxShadow: '0 1px 4px rgba(0,0,0,0.1)' }}>
+    <div className="room">
+      <nav className="room__nav">
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <span style={{ fontWeight: '600', color: '#185FA5', fontSize: '18px' }}>
-            CollabNotes ✏️
-          </span>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px',
-            background: '#f0f2f5', padding: '4px 12px', borderRadius: '20px' }}>
-            <span style={{ fontSize: '13px', color: '#666' }}>Room:</span>
-            <span style={{ fontWeight: '700', letterSpacing: '2px',
-              color: '#185FA5', fontSize: '14px' }}>{roomCode}</span>
-            <button onClick={copyCode}
-              style={{ background: 'none', border: 'none',
-                cursor: 'pointer', fontSize: '13px' }}>
+          <div className="room__logo">
+            <span>CollabNotes ✏️</span>
+          </div>
+          <div className="room__room-badge">
+            <span className="room-label">Room:</span>
+            <span className="room-code">{roomCode}</span>
+            <button className="copy-btn" onClick={copyCode}>
               {copied ? '✅' : '📋'}
             </button>
           </div>
         </div>
+
         <input
+          className="room__title"
           value={title}
           onChange={e => setTitle(e.target.value)}
-          style={{ border: 'none', borderBottom: '1px solid #ddd',
-            fontSize: '14px', padding: '4px 8px', outline: 'none',
-            textAlign: 'center', width: '200px', color: '#333' }}
           placeholder="Note title..."
         />
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px',
-            background: '#EAF3DE', padding: '4px 12px', borderRadius: '20px' }}>
-            <span style={{ width: '8px', height: '8px', borderRadius: '50%',
-              background: '#1D9E75', display: 'inline-block' }}></span>
-            <span style={{ fontSize: '13px', color: '#27500A', fontWeight: '500' }}>
-              {users} editing
-            </span>
+
+        <div className="room__nav-right">
+          <div className="room__users-badge">
+            <span className="pulse-dot"></span>
+            <span>{users} editing</span>
           </div>
-          <button onClick={saveNote} disabled={saving}
-            style={{ padding: '0.5rem 1rem', background: '#185FA5',
-              color: 'white', border: 'none', borderRadius: '8px',
-              cursor: 'pointer', fontSize: '13px', opacity: saving ? 0.7 : 1 }}>
+          <button className="room__save-btn" onClick={saveNote} disabled={saving}>
             {saving ? '⏳ Saving...' : saved ? '✅ Saved!' : '💾 Save'}
           </button>
-          <button onClick={() => navigate('/dashboard')}
-            style={{ padding: '0.5rem 1rem', background: '#ff4d4f',
-              color: 'white', border: 'none', borderRadius: '8px',
-              cursor: 'pointer', fontSize: '13px' }}>
-            Leave Room
+          <button className="room__leave-btn" onClick={() => navigate('/dashboard')}>
+            Leave
           </button>
+          <button className="room__theme-btn" onClick={toggleTheme}>🌙</button>
         </div>
-      </div>
-      <div style={{ flex: 1, padding: '1.5rem' }}>
+      </nav>
+
+      <div className="room__editor">
         <textarea
+          className="room__textarea"
           value={note}
           onChange={handleChange}
-          placeholder={`Start typing your note here...\n\nShare room code "${roomCode}" with others! 🚀`}
-          style={{ width: '100%', height: '100%', padding: '1.5rem',
-            fontSize: '16px', lineHeight: '1.7', border: 'none',
-            borderRadius: '12px', resize: 'none', outline: 'none',
-            boxShadow: '0 2px 12px rgba(0,0,0,0.08)',
-            fontFamily: 'inherit', color: '#1a1a1a', background: 'white' }}
+          placeholder={`Start typing...\n\nShare code "${roomCode}" to collaborate! 🚀`}
         />
       </div>
     </div>

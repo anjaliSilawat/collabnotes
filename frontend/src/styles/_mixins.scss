@@ -1,0 +1,81 @@
+@import 'variables';
+
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+@mixin card {
+  background: $bg-primary;
+  border-radius: $radius-md;
+  box-shadow: $shadow-md;
+  border: 1px solid $border;
+}
+
+@mixin button-primary {
+  background: $primary;
+  color: white;
+  border: none;
+  border-radius: $radius-sm;
+  padding: 0.75rem 1.5rem;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: $transition;
+  font-family: $font-sans;
+
+  &:hover {
+    background: $primary-hover;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+  }
+
+  &:active { transform: translateY(0); }
+  &:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+}
+
+@mixin input-style {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1.5px solid $border;
+  border-radius: $radius-sm;
+  font-size: 14px;
+  font-family: $font-sans;
+  color: $text-primary;
+  background: $bg-secondary;
+  transition: $transition;
+  outline: none;
+
+  &::placeholder { color: $text-muted; }
+
+  &:focus {
+    border-color: $primary;
+    background: $bg-primary;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+  }
+}
+
+@mixin dark-mode {
+  [data-theme='dark'] & {
+    @content;
+  }
+}
+
+@mixin mobile {
+  @media (max-width: 768px) {
+    @content;
+  }
+}
+
+@mixin tablet {
+  @media (max-width: 1024px) {
+    @content;
+  }
+}

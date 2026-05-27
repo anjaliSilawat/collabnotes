@@ -1,0 +1,53 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import 'variables';
+@import 'animations';
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: $font-sans;
+  background: $bg-secondary;
+  color: $text-primary;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+// Dark mode
+[data-theme='dark'] {
+  body {
+    background: $dark-bg-primary;
+    color: $dark-text-primary;
+  }
+}
+
+a {
+  color: $primary;
+  text-decoration: none;
+  &:hover { text-decoration: underline; }
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: $bg-tertiary;
+}
+::-webkit-scrollbar-thumb {
+  background: $text-muted;
+  border-radius: $radius-full;
+}
+
+// Scrollbar dark mode
+[data-theme='dark'] {
+  ::-webkit-scrollbar-track { background: $dark-bg-secondary; }
+  ::-webkit-scrollbar-thumb { background: $dark-text-muted; }
+}

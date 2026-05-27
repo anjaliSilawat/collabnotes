@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import '../styles/Dashboard.scss'
 
 export default function Dashboard() {
   const [joinCode, setJoinCode] = useState('')
@@ -13,9 +14,7 @@ export default function Dashboard() {
   }
 
   const joinRoom = () => {
-    if (joinCode.trim()) {
-      navigate(`/room/${joinCode.toUpperCase()}`)
-    }
+    if (joinCode.trim()) navigate(`/room/${joinCode.toUpperCase()}`)
   }
 
   const handleLogout = () => {
@@ -23,83 +22,69 @@ export default function Dashboard() {
     navigate('/login')
   }
 
+  const toggleTheme = () => {
+    const current = document.documentElement.getAttribute('data-theme')
+    document.documentElement.setAttribute('data-theme', current === 'dark' ? 'light' : 'dark')
+  }
+
   return (
-    <div style={{ minHeight: '100vh', background: '#f0f2f5' }}>
+    <div className="dashboard">
       {/* Navbar */}
-      <div style={{ background: 'white', padding: '1rem 2rem',
-        display: 'flex', justifyContent: 'space-between',
-        alignItems: 'center', boxShadow: '0 1px 4px rgba(0,0,0,0.1)' }}>
-        <h2 style={{ color: '#185FA5' }}>CollabNotes ✏️</h2>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <span style={{ fontSize: '14px', color: '#666' }}>
-            Hey, {user?.username}!
-          </span>
-          <button onClick={() => navigate('/history')}
-            style={{ padding: '0.5rem 1rem', background: '#1D9E75',
-              color: 'white', border: 'none', borderRadius: '8px',
-              cursor: 'pointer', fontSize: '13px' }}>
-            My Notes 📝
+      <nav className="dashboard__nav">
+        <div className="dashboard__logo">
+          <span className="logo-icon">✏️</span>
+          <h2>CollabNotes</h2>
+        </div>
+
+        <div className="dashboard__nav-right">
+          <span className="dashboard__greeting">Hey, {user?.username}! 👋</span>
+          <button className="dashboard__nav-btn dashboard__nav-btn--notes"
+            onClick={() => navigate('/history')}>
+            📝 My Notes
           </button>
-          <button onClick={handleLogout}
-            style={{ padding: '0.5rem 1rem', background: '#ff4d4f',
-              color: 'white', border: 'none', borderRadius: '8px',
-              cursor: 'pointer', fontSize: '13px' }}>
+          <button className="dashboard__nav-btn dashboard__nav-btn--logout"
+            onClick={handleLogout}>
             Logout
           </button>
+          <button className="dashboard__nav-btn dashboard__nav-btn--theme"
+            onClick={toggleTheme}>
+            🌙
+          </button>
         </div>
+      </nav>
+
+      {/* Hero */}
+      <div className="dashboard__hero">
+        <h1>Start Collaborating ✨</h1>
+        <p>Create a room or join an existing one to start editing together</p>
       </div>
 
-      {/* Main */}
-      <div style={{ display: 'flex', justifyContent: 'center',
-        alignItems: 'center', height: 'calc(100vh - 64px)' }}>
-        <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap',
-          justifyContent: 'center' }}>
+      {/* Cards */}
+      <div className="dashboard__grid">
+        <div className="dashboard__card">
+          <span className="card-icon">🚀</span>
+          <h3>Create Room</h3>
+          <p>Start a new collaborative note session and invite others with a room code</p>
+          <button className="dashboard__create-btn" onClick={createRoom}>
+            Create New Room
+          </button>
+        </div>
 
-          {/* Create Room */}
-          <div style={{ background: 'white', padding: '2rem',
-            borderRadius: '12px', width: '280px', textAlign: 'center',
-            boxShadow: '0 2px 12px rgba(0,0,0,0.08)' }}>
-            <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🚀</div>
-            <h3 style={{ marginBottom: '0.5rem' }}>Create Room</h3>
-            <p style={{ fontSize: '13px', color: '#888', marginBottom: '1.5rem' }}>
-              Start a new collaborative note session
-            </p>
-            <button onClick={createRoom}
-              style={{ width: '100%', padding: '0.75rem',
-                background: '#185FA5', color: 'white',
-                border: 'none', borderRadius: '8px',
-                fontSize: '14px', cursor: 'pointer' }}>
-              Create New Room
-            </button>
-          </div>
-
-          {/* Join Room */}
-          <div style={{ background: 'white', padding: '2rem',
-            borderRadius: '12px', width: '280px', textAlign: 'center',
-            boxShadow: '0 2px 12px rgba(0,0,0,0.08)' }}>
-            <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🔗</div>
-            <h3 style={{ marginBottom: '0.5rem' }}>Join Room</h3>
-            <p style={{ fontSize: '13px', color: '#888', marginBottom: '1rem' }}>
-              Enter a room code to collaborate
-            </p>
-            <input
-              placeholder="Enter room code (e.g. AB12)"
-              value={joinCode}
-              onChange={e => setJoinCode(e.target.value)}
-              style={{ width: '100%', padding: '0.75rem',
-                marginBottom: '1rem', borderRadius: '8px',
-                border: '1px solid #ddd', fontSize: '14px',
-                textAlign: 'center', letterSpacing: '2px' }}
-            />
-            <button onClick={joinRoom}
-              style={{ width: '100%', padding: '0.75rem',
-                background: '#1D9E75', color: 'white',
-                border: 'none', borderRadius: '8px',
-                fontSize: '14px', cursor: 'pointer' }}>
-              Join Room
-            </button>
-          </div>
-
+        <div className="dashboard__card">
+          <span className="card-icon">🔗</span>
+          <h3>Join Room</h3>
+          <p>Enter a room code to join an existing collaborative session</p>
+          <input
+            className="dashboard__join-input"
+            placeholder="Enter code (e.g. AB12)"
+            value={joinCode}
+            onChange={e => setJoinCode(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && joinRoom()}
+            maxLength={4}
+          />
+          <button className="dashboard__join-btn" onClick={joinRoom}>
+            Join Room
+          </button>
         </div>
       </div>
     </div>

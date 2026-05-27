@@ -1,0 +1,44 @@
+// Colors — Light Mode
+$primary: #4F46E5;
+$primary-hover: #4338CA;
+$primary-light: #EEF2FF;
+$success: #10B981;
+$success-light: #ECFDF5;
+$danger: #EF4444;
+$danger-light: #FEF2F2;
+$warning: #F59E0B;
+
+// Light Mode
+$bg-primary: #FFFFFF;
+$bg-secondary: #F8FAFC;
+$bg-tertiary: #F1F5F9;
+$text-primary: #0F172A;
+$text-secondary: #475569;
+$text-muted: #94A3B8;
+$border: #E2E8F0;
+$shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+$shadow-md: 0 4px 16px rgba(0,0,0,0.10);
+$shadow-lg: 0 8px 32px rgba(0,0,0,0.12);
+
+// Dark Mode
+$dark-bg-primary: #0F172A;
+$dark-bg-secondary: #1E293B;
+$dark-bg-tertiary: #334155;
+$dark-text-primary: #F1F5F9;
+$dark-text-secondary: #94A3B8;
+$dark-text-muted: #64748B;
+$dark-border: #334155;
+
+// Typography
+$font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+$font-mono: 'Fira Code', monospace;
+
+// Spacing
+$radius-sm: 8px;
+$radius-md: 12px;
+$radius-lg: 16px;
+$radius-full: 9999px;
+
+// Transitions
+$transition: all 0.2s ease;
+$transition-slow: all 0.3s ease;
