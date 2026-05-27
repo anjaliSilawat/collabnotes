@@ -13,7 +13,10 @@ const httpServer = http.createServer(app);
 
 // CORS — sabse pehle
 app.use(cors({
-  origin: 'http://localhost:5173',
+  origin: [
+    'http://localhost:5173',
+    'https://collabnotes-liard.vercel.app'
+  ],
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
@@ -31,7 +34,10 @@ app.use('/api/notes', noteRoutes);
 // Socket.io setup
 const io = new Server(httpServer, {
   cors: {
-    origin: 'http://localhost:5173',
+    origin: [
+      'http://localhost:5173',
+      'https://collabnotes-liard.vercel.app'
+    ],
     methods: ['GET', 'POST']
   }
 });
