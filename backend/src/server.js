@@ -11,15 +11,19 @@ const noteRoutes = require('./routes/notes');
 const app = express();
 const httpServer = http.createServer(app);
 
-// CORS — sabse pehle
+const allowedOrigins = [
+  'http://localhost:5173',
+  'https://collabnotes-liard.vercel.app'
+];
+
+// CORS
 app.use(cors({
-  origin: [
-    'http://localhost:5173',
-    'https://collabnotes-liard.vercel.app'
-  ],
+  origin: allowedOrigins,
+  credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
+
 app.use(express.json());
 
 // MongoDB connect
@@ -27,22 +31,19 @@ mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('MongoDB connected!'))
   .catch((err) => console.log('MongoDB error:', err));
 
-// Routes — CORS ke baad
+// Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/notes', noteRoutes);
 
-// Socket.io setup
+// Socket.io
 const io = new Server(httpServer, {
   cors: {
-    origin: [
-      'http://localhost:5173',
-      'https://collabnotes-liard.vercel.app'
-    ],
+    origin: allowedOrigins,
+    credentials: true,
     methods: ['GET', 'POST']
   }
 });
 
-// Socket.io events
 io.on('connection', (socket) => {
   console.log('User connected:', socket.id);
 
@@ -62,6 +63,7 @@ io.on('connection', (socket) => {
 });
 
 const PORT = process.env.PORT || 8000;
+
 httpServer.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
