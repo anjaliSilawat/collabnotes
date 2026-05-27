@@ -13,7 +13,8 @@ const httpServer = http.createServer(app);
 
 const allowedOrigins = [
   'http://localhost:5173',
-  'https://collabnotes-liard.vercel.app'
+  'https://collabnotes-liard.vercel.app',
+  'https://collabnotes-git-main-anjali-silawat-s-projects.vercel.app'
 ];
 
 // CORS
