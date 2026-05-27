@@ -1,6 +1,6 @@
 const express = require('express')
 const router = express.Router()
-const upload = require('../middleware/multer') // adjust path if needed
+const upload = require('../middleware/multer')
 
 router.post('/', upload.single('file'), async (req, res) => {
   try {
